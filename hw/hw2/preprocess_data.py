@@ -1,11 +1,10 @@
 # %load preprocess_data.py
 
-
 from sklearn import preprocessing
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
-
+import numpy as np
 import re
 room_data.describe()
 
@@ -22,12 +21,13 @@ class DataFrameSelector(BaseEstimator, TransformerMixin):
 
 # list of attributes for the DataFrameSelector (pandas to numpy)
 room_attrib = [attr for attr in list(room_data) if not re.search(attr, r'date|Occupancy')]
-print(room_attrib)
 pipeline = Pipeline([
     ('selector', DataFrameSelector(room_attrib)),
     ('std_scaler', StandardScaler()),
 ])
 
-# axis=1 implies column
 room_prepared = pipeline.fit_transform(room_data)
-print(room_prepared)
+print(np.shape(room_prepared))
+print(room_prepared[0])
+df = pd.DataFrame(room_prepared)
+df.plot(subplots=True, layout=(2,3), figsize=(12, 8));

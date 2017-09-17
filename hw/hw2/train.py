@@ -42,4 +42,4 @@ def train():
     return w, perf
 
 # invoke main
-w_perceptron, performance = train()
+w_trained, performance = train()
