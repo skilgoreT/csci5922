@@ -1,7 +1,12 @@
 #!/usr/bin/env ruby
-`rm hw2.py`
+`rm -f perceptron.py`
 %w{read_data.py preprocess_data.py train.py}.each do |file|
-  `cat #{file} >> 'hw2.py'`
+  `cat #{file} >> 'perceptron.py'`
 end
 
+`rm -f mlp.py`
+%w{read_data.py preprocess_data.py mlp_train.py}.each do |file|
+  `cat #{file} >> 'mlp.py'`
+end
 
+puts `python mlp.py`
