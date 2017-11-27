@@ -35,8 +35,14 @@ pipeline = Pipeline([
 ])
 
 room_prepared = pipeline.fit_transform(room_data)
+#print(np.shape(room_prepared))
+#print(room_prepared[0])
 df = pd.DataFrame(room_prepared)
-df.plot(subplots=True, layout=(2,3), figsize=(12, 8));# %load mlp_train.py
+# shuffle the normalized data with stable seed (repoducable debug)
+# df = df.sample(frac=1, random_state=0).reset_index(drop=True)
+print(df.head(5))
+df.plot(subplots=True, layout=(2,3), figsize=(12, 8));
+# %load mlp_train.py
 import os as os
 import numpy as np
 import scipy.io
@@ -71,10 +77,14 @@ def forward_propagation(T, X, W1, W2):
     # ouptut layer
     # * for numpy (n,) is element wise (T-Y)*(1-Y)*(1+Y)
     R = (T-Y2) # residual
+    # correctly classified
+    cc = [1 for r in enumerate(R) if r >=-1 and r <= 1 ]
+    M = len(cc)/float(len(R))
     D2 = R * (np.ones(np.shape(T)) + Y2) * (np.ones(np.shape(T)) - Y2)
     # einsum for dot product (overkill - LOL)
     E = (1.0/float(len(R))) * np.einsum('ij,ij', R,R)
     if debug : print(f"D2 shape is {np.shape(D2)}")
+
     # W2 slice that excludes the last element
     # since don't need D (delta) for bias at layer 1
     #
@@ -85,7 +95,7 @@ def forward_propagation(T, X, W1, W2):
     # Z0 is just the inputs with bias (i.e. X) - but this keeps
     # the notation consistent
     Z0 = X
-    return E, D1, Z0, D2, Z1
+    return E, M, D1, Z0, D2, Z1
 
 def back_propagation(D2, Z1, D1, Z0, eps):
     dW2 = eps*np.einsum('ij,ij->j', D2, add_bias(Z1));
@@ -127,14 +137,14 @@ def mlp_train(*, n_epoch, minibatch_size, learning_rate, n_hidden):
         for i in range(len(XBS)):
             XB = XBS[i]
             TB = TBS[i]
-            EB, D1, Z0, D2, Z1 = forward_propagation(TB, XB, W1, W2)
+            EB, MB, D1, Z0, D2, Z1 = forward_propagation(TB, XB, W1, W2)
             #print(EB)
             dW1, dW2 = back_propagation(D2, Z1, D1, Z0, learning_rate)
             W1 += dW1
             W2 += dW2
 
-        E, _, _, _, _ = forward_propagation(T, X, W1, W2)
-        print(E)
+        E, M, _, _, _, _ = forward_propagation(T, X, W1, W2)
+        print(f"MSE #{E}, % correct ${M}")
 
     # weights, performance
     return 0, 0

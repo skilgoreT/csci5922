@@ -31,6 +31,6 @@ room_prepared = pipeline.fit_transform(room_data)
 #print(room_prepared[0])
 df = pd.DataFrame(room_prepared)
 # shuffle the normalized data with stable seed (repoducable debug)
-df = df.sample(frac=1, random_state=0).reset_index(drop=True)
+# df = df.sample(frac=1, random_state=0).reset_index(drop=True)
 print(df.head(5))
 df.plot(subplots=True, layout=(2,3), figsize=(12, 8));
