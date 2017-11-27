@@ -1,0 +1,15 @@
+# This is a hacky way to use juptyer notebooks w/o having to duplicate code
+# outside the notebook for the purposes of debugging.
+# you can sync code frags between the notebooks and disk using the juptyer magic words
+
+# uncomment to read the cell from file
+#%load read_data.py
+
+#uncomment to write the cell to file
+%%writefile read_data.py
+
+# concatentate python frags into final.py (good for debugging)
+# currently only read_data.py - update if you add more
+./build.rb
+
+
