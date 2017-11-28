@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 `rm -f final.py`
-%w{read_data.py}.each do |file|
+%w{read_student_vectors.py}.each do |file|
   `cat #{file} >> 'final.py'`
 end
 
