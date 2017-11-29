@@ -34,7 +34,7 @@ def forward_propagation(T, X, W1, W2):
     # * for numpy (n,) is element wise (T-Y)*(1-Y)*(1+Y)
     R = (T-Y2) # residual
     # correctly classified
-    cc = [1 for r in enumerate(R) if r >=-1 and r <= 1 ]
+    cc = [1 for r in np.nditer(np.squeeze(R)) if r >=-1 and r <= 1 ]
     M = len(cc)/float(len(R))
     D2 = R * (np.ones(np.shape(T)) + Y2) * (np.ones(np.shape(T)) - Y2)
     # einsum for dot product (overkill - LOL)
@@ -106,7 +106,7 @@ def mlp_train(*, n_epoch, minibatch_size, learning_rate, n_hidden):
     return 0, 0
 
 # invoke main
-w_trained, performance = mlp_train(n_epoch=10,
-                                   minibatch_size=1000,
-                                   learning_rate=0.0001,
-                                   n_hidden=3)
+w_trained, performance = mlp_train(n_epoch=20,
+                                   minibatch_size=100,
+                                   learning_rate=0.00001,
+                                   n_hidden=6)

@@ -57,21 +57,22 @@ print(f"Found {len(id_count)} student ids in {N_LIMIT} records")
 MIN_NUM_TASK = 100
 unique_ids = [id for id in unique_ids if id_count[id] >= MIN_NUM_TASK]
 print(f"Processing {len(unique_ids)} students after applying MIN_NUM_TASK = {MIN_NUM_TASK} filter")
-student_vectors = []
+student_vectors = {}
 for id in unique_ids:
   # all the entries associated with a specific student
   data = db['anon_student_task_responses'].find({'student.student_id':id, **has_standards})
-  responses = {}
+  responses = []
   for d in data:
-    responses[d['qual_id']] = {
+    responses.append({
+      'qual_id': d['qual_id'],           # problem id
       'correct':d['correct'],            # answer correct
       'ts':d['t'],                       # timestamp
       'ccssm': d['ccssm_standards'][0],  # CCSSM
       'untouched': d['untouched'],       # skipped the problem
       'second_try': d['second_try']      # correct on retry
-    }
+    })
   # store student vector in list
-  student_vectors.append(responses)
+  student_vectors[id] = responses
 
 ### Write Student Vectors ############################
 ## JSON & pickle format
