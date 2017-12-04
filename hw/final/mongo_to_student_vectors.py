@@ -115,7 +115,7 @@ with open(filepath, 'w') as outfile:
 print(f"Wrote student vectors to {filepath}")
 
 # as python binary
-filepath = f"{cwd}/student_vectors_{N_TASK}_n_limit_{N_LIMIT}.pickle"
+filepath = f"{cwd}/student_vectors_n_task_{N_TASK}_n_limit_{N_LIMIT}.pickle"
 import pickle
 with open(filepath, 'wb') as f:
   pickle.dump(student_vectors, f)
