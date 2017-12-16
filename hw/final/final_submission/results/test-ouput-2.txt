@@ -1,0 +1,33 @@
+discarding /curc/sw/python/3.5.1/bin from PATH
+prepending /projects/akar9135/sample/bin to PATH
+I tensorflow/stream_executor/dso_loader.cc:128] successfully opened CUDA library libcublas.so locally
+I tensorflow/stream_executor/dso_loader.cc:128] successfully opened CUDA library libcudnn.so locally
+I tensorflow/stream_executor/dso_loader.cc:128] successfully opened CUDA library libcufft.so locally
+I tensorflow/stream_executor/dso_loader.cc:128] successfully opened CUDA library libcuda.so.1 locally
+I tensorflow/stream_executor/dso_loader.cc:128] successfully opened CUDA library libcurand.so locally
+52209
+44758
+Traceback (most recent call last):
+  File "/curc/sw/python/3.5.1/lib/python3.5/site-packages/tensorflow/python/framework/op_def_library.py", line 490, in apply_op
+    preferred_dtype=default_dtype)
+  File "/curc/sw/python/3.5.1/lib/python3.5/site-packages/tensorflow/python/framework/ops.py", line 669, in convert_to_tensor
+    ret = conversion_func(value, dtype=dtype, name=name, as_ref=as_ref)
+  File "/curc/sw/python/3.5.1/lib/python3.5/site-packages/tensorflow/python/framework/ops.py", line 583, in _TensorTensorConversionFunction
+    % (dtype.name, t.dtype.name, str(t)))
+ValueError: Tensor conversion requested dtype float64 for Tensor with dtype float32: 'Tensor("auc/Tile:0", shape=(200, 27570928), dtype=float32)'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "Baseline_auc.py", line 215, in <module>
+    auc,  update_op = tf.contrib.metrics.streaming_auc(labels=y_true, predictions=y_scores, curve='ROC')
+  File "/curc/sw/python/3.5.1/lib/python3.5/site-packages/tensorflow/contrib/metrics/python/ops/metric_ops.py", line 815, in streaming_auc
+    fp_update_op) = _tp_fn_tn_fp(predictions, labels, thresholds, weights)
+  File "/curc/sw/python/3.5.1/lib/python3.5/site-packages/tensorflow/contrib/metrics/python/ops/metric_ops.py", line 702, in _tp_fn_tn_fp
+    thresh_tiled)
+  File "/curc/sw/python/3.5.1/lib/python3.5/site-packages/tensorflow/python/ops/gen_math_ops.py", line 933, in greater
+    result = _op_def_lib.apply_op("Greater", x=x, y=y, name=name)
+  File "/curc/sw/python/3.5.1/lib/python3.5/site-packages/tensorflow/python/framework/op_def_library.py", line 521, in apply_op
+    inferred_from[input_arg.type_attr]))
+TypeError: Input 'y' of 'Greater' Op has type float32 that does not match type float64 of argument 'x'.
+discarding /projects/akar9135/sample/bin from PATH

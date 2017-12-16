@@ -1,0 +1,76 @@
+discarding /curc/sw/python/3.5.1/bin from PATH
+prepending /projects/akar9135/sample/bin to PATH
+I tensorflow/stream_executor/dso_loader.cc:128] successfully opened CUDA library libcublas.so locally
+I tensorflow/stream_executor/dso_loader.cc:128] successfully opened CUDA library libcudnn.so locally
+I tensorflow/stream_executor/dso_loader.cc:128] successfully opened CUDA library libcufft.so locally
+I tensorflow/stream_executor/dso_loader.cc:128] successfully opened CUDA library libcuda.so.1 locally
+I tensorflow/stream_executor/dso_loader.cc:128] successfully opened CUDA library libcurand.so locally
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:885] Found device 0 with properties: 
+name: Tesla K80
+major: 3 minor: 7 memoryClockRate (GHz) 0.8235
+pciBusID 0000:04:00.0
+Total memory: 11.92GiB
+Free memory: 11.86GiB
+W tensorflow/stream_executor/cuda/cuda_driver.cc:590] creating context when one is currently active; existing: 0x122fb030
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:885] Found device 1 with properties: 
+name: Tesla K80
+major: 3 minor: 7 memoryClockRate (GHz) 0.8235
+pciBusID 0000:05:00.0
+Total memory: 11.92GiB
+Free memory: 11.86GiB
+W tensorflow/stream_executor/cuda/cuda_driver.cc:590] creating context when one is currently active; existing: 0x122feb50
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:885] Found device 2 with properties: 
+name: Tesla K80
+major: 3 minor: 7 memoryClockRate (GHz) 0.8235
+pciBusID 0000:84:00.0
+Total memory: 11.92GiB
+Free memory: 11.86GiB
+W tensorflow/stream_executor/cuda/cuda_driver.cc:590] creating context when one is currently active; existing: 0x12302780
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:885] Found device 3 with properties: 
+name: Tesla K80
+major: 3 minor: 7 memoryClockRate (GHz) 0.8235
+pciBusID 0000:85:00.0
+Total memory: 11.92GiB
+Free memory: 11.85GiB
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:777] Peer access not supported between device ordinals 0 and 2
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:777] Peer access not supported between device ordinals 0 and 3
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:777] Peer access not supported between device ordinals 1 and 2
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:777] Peer access not supported between device ordinals 1 and 3
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:777] Peer access not supported between device ordinals 2 and 0
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:777] Peer access not supported between device ordinals 2 and 1
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:777] Peer access not supported between device ordinals 3 and 0
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:777] Peer access not supported between device ordinals 3 and 1
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:906] DMA: 0 1 2 3 
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:916] 0:   Y Y N N 
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:916] 1:   Y Y N N 
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:916] 2:   N N Y Y 
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:916] 3:   N N Y Y 
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:975] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K80, pci bus id: 0000:04:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:975] Creating TensorFlow device (/gpu:1) -> (device: 1, name: Tesla K80, pci bus id: 0000:05:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:975] Creating TensorFlow device (/gpu:2) -> (device: 2, name: Tesla K80, pci bus id: 0000:84:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:975] Creating TensorFlow device (/gpu:3) -> (device: 3, name: Tesla K80, pci bus id: 0000:85:00.0)
+I tensorflow/core/common_runtime/gpu/pool_allocator.cc:247] PoolAllocator: After 10906 get requests, put_count=10499 evicted_count=1000 eviction_rate=0.0952472 and unsatisfied allocation rate=0.138181
+I tensorflow/core/common_runtime/gpu/pool_allocator.cc:259] Raising pool_size_limit_ from 100 to 110
+I tensorflow/core/common_runtime/gpu/pool_allocator.cc:247] PoolAllocator: After 14627 get requests, put_count=14402 evicted_count=1000 eviction_rate=0.0694348 and unsatisfied allocation rate=0.0853217
+I tensorflow/core/common_runtime/gpu/pool_allocator.cc:259] Raising pool_size_limit_ from 256 to 281
+/curc/sw/python/3.5.1/lib/python3.5/site-packages/tensorflow/python/ops/gradients_impl.py:91: UserWarning: Converting sparse IndexedSlices to a dense Tensor of unknown shape. This may consume a large amount of memory.
+  "Converting sparse IndexedSlices to a dense Tensor of unknown shape. "
+0.12.1
+{'ccssm': 'CCSS.Math.3.NF.A.1', 'untouched': False, 'qual_id': '1zsCldT4p8.set2.JiTh5Wk0bD', 'time_spent': 31732, 'task_id': '1zsCldT4p8.set2', 'ts': 1473782027923.0, 'correct': False, 'second_try': False}
+{'ccssm': 'CCSS.Math.3.NF.A.1', 'untouched': False, 'qual_id': '1zsCldT4p8.set2.JiTh5Wk0bD', 'time_spent': 41516, 'task_id': '1zsCldT4p8.set2', 'ts': 1473782037722.0, 'correct': True, 'second_try': True}
+Number of unique labels in this dataset 4
+Number of unique lessons/tasks in this dataset 10
+Number of unique questions in this dataset 612
+Total Number of Students: 1255
+Maximum number of interactions (max sequence length): 177
+1130
+Step 1, Loss= [0.9724316]
+Step 100, Loss= [0.86343348]
+Step 200, Loss= [0.72919232]
+Step 300, Loss= [0.71042538]
+Step 400, Loss= [0.7042222]
+Step 500, Loss= [0.70118308]
+Optimization Finished!
+Testing auc for qual: 0.0, 0.503326
+Testing auc for ccssm: 0.0, 0.99867
+discarding /projects/akar9135/sample/bin from PATH

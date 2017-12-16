@@ -1,0 +1,27 @@
+# Tested on OSX (bsd) - Python 3.6.1 :: Anaconda 4.4.0 (x86_64)
+
+###################
+# Peek at the data
+###################
+
+./pretty_print_json.sh student_vectors.json | less
+
+###################
+# Jupyter workflow
+###################
+
+# This is a hacky way to use juypter notebooks w/o having to duplicate code
+# outside the notebook for the purposes of debugging. You can sync code frags
+# between the notebooks and disk using the juypter magic words below
+
+# uncomment to read the cell from file
+#%load read_student_vectors.py
+
+#uncomment to write the cell to file
+%%writefile read_student_vectors.py
+
+# concatentate python frags into final.py (good for debugging)
+# currently only read_student_vectors.py - update if you add more
+./build.rb
+
+
