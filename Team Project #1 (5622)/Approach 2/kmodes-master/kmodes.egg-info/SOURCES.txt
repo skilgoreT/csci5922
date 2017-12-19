@@ -1,0 +1,12 @@
+README.rst
+setup.py
+kmodes/__init__.py
+kmodes/kmodes.py
+kmodes/kprototypes.py
+kmodes.egg-info/PKG-INFO
+kmodes.egg-info/SOURCES.txt
+kmodes.egg-info/dependency_links.txt
+kmodes.egg-info/requires.txt
+kmodes.egg-info/top_level.txt
+kmodes/util/__init__.py
+kmodes/util/dissim.py
