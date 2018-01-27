@@ -140,6 +140,6 @@ for task_id, students in test_vectors.items():
 from tabulate import tabulate
 
 print("\n## BKT Predictor ##")
-print(tabulate(bkt_table_data, headers=['task_id','L0','T','S','G']))
+print(tabulate(bkt_table_data, headers=['task_id','L0','T','S','G', 'Test Set Error']))
 
 print("\nthat is all")
