@@ -50,7 +50,7 @@ def get_vectors(data):
   return vectors
 
 model_vectors = get_vectors(model)
-test_vectors = get_vectors(model)
+test_vectors = get_vectors(test)
 
 ######################################
 # Stupid Predictor
@@ -91,6 +91,7 @@ print("\n## Stupid Predictor ##")
 from tabulate import tabulate
 print(tabulate(stupid_table_data, headers = ['task_id', 'L0', 'Test Set Error']))
 
+
 ######################################
 # Bayesian Knowledge Tracing Predictor
 ######################################
@@ -123,22 +124,54 @@ def make_bkt_cost(students):
     return E
   return bkt_cost
 
+def make_bkt_auc(students):
+  def bkt_auc(X):
+    L0, T, S, G = X
+    p_vectors = []
+    t_vectors = []
+    for student_id, encoded_responses in students.items():
+      L = L0
+      p_vector = []
+      t_vector = []
+      p_vectors.append(p_vector)
+      t_vectors.append(t_vector)
+      for encoded_response in encoded_responses:
+        p = probability_correct(L,T,S,G)
+        t = encoded_response
+        p_vector.append(p)
+        t_vector.append(t)
+        L = update_L(encoded_response, L,T,S,G)
+    return p_vectors, t_vectors
+  return bkt_auc
+
+######################################
+# AUC
+######################################
+
+filepath = f"{cwd}/bkt_best_fit.json"
+bkt_best_fit = json.load(open(filepath))
+for task_id, students in test_vectors.items():
+  bkt_auc = make_bkt_auc(students)
+  vectors = bkt_auc(bkt_best_fit[task_id])
+  print(vectors)
+
 bkt_best_fit = {}
 for task_id, students in model_vectors.items():
   cost = make_bkt_cost(students)
   x0 = np.array([0.8, 0.1, 0.1, 0.1])
   res = minimize(cost, x0, method='nelder-mead', options={'xtol': 1e-3, 'disp': False})
-  bkt_best_fit[task_id] = res['x']
+  bkt_best_fit[task_id] = res['x'].tolist()
 
 bkt_table_data = []
 for task_id, students in test_vectors.items():
   cost = make_bkt_cost(students)
   test_set_error = cost(bkt_best_fit[task_id])
-  bkt_table_data.append([task_id] + bkt_best_fit[task_id].tolist() + [test_set_error])
+  bkt_table_data.append([task_id] + bkt_best_fit[task_id] + [test_set_error])
 
-  # print(res)
+with open('bkt_best_fit.json', 'w') as outfile:
+    json.dump(bkt_best_fit, outfile)
+
 from tabulate import tabulate
-
 print("\n## BKT Predictor ##")
 print(tabulate(bkt_table_data, headers=['task_id','L0','T','S','G', 'Test Set Error']))
 
