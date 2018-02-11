@@ -3,6 +3,7 @@
 # %load read_data.py
 from pymongo import MongoClient
 from collections import defaultdict
+
 import re
 import os
 cwd = os.path.dirname(os.path.realpath(__file__))
@@ -35,7 +36,7 @@ data = db['anon_student_task_responses'].find(has_standards, {'student.student_i
                                                               'problem_set_subspace':1,
                                                               'qual_id':1}).limit(N_LIMIT)
 
-# populate a set of unique problem_set_id.problem_set_subspace
+# populate a set of unique student_ids
 unique_ids = set([d['student']['student_id'] for d in data])
 data.rewind() # reset mongo cursor for next pass
 
@@ -52,13 +53,9 @@ for d in data:
 
 task_ids = sorted(task_count, key=task_count.get, reverse=True)[:N_TASK]
 
+print(f"Found {len(unique_ids)} Students in {N_LIMIT} records")
 print(f"Found {len(ccssm_count)} CCSSM standards in {N_LIMIT} records")
-# for std in sorted(ccssm_count, key=ccssm_count.get, reverse=True):
-#   print("Standard: {:25} \t Count: {}".format(std, ccssm_count[std]))
-
 print(f"Found {len(task_count)} task ids  in {N_LIMIT} records")
-#for task_id in task_ids:
-#  print("Task ID: {:25} \t Count: {}".format(task_id, task_count[task_id]))
 
 ### Build Student Vectors #############################
 ## Build the student vectors
@@ -72,23 +69,33 @@ print(f"Found {len(task_count)} task ids  in {N_LIMIT} records")
 
 student_vectors = defaultdict(list)
 for idx, task_id in enumerate(task_ids):
-  problem_set_id, problem_set_subspace = task_id.split('.')
-  responses = db['anon_student_task_responses'].find({'problem_set_id':problem_set_id,
-                                                      'problem_set_subspace':problem_set_subspace,
-                                                      **has_standards}).limit(N_LIMIT)
-  print(f"processing task {idx}")
-  for r in responses:
-    student_id = r['student']['student_id']
-    student_vectors[student_id].append({
-      'task_id': task_id,                # task_id (problem_set_id.problem_set_subspace)
-      'qual_id': r['qual_id'],           # qualified id
-      'correct':r['correct'],            # answer correct
-      'ts':r['t'],                       # timestamp
-      'ccssm': r['ccssm_standards'][0],  # CCSSM
-      'untouched': r['untouched'],       # skipped the problem
-      'second_try': r['second_try'],     # retry
-      'time_spent': r['time_spent']      # dwell time
-    })
+  try:
+    toks = task_id.split('.')
+    if len(toks)==2:
+      problem_set_id, problem_set_subspace = task_id.split('.')
+      responses = db['anon_student_task_responses'].find({'problem_set_id':problem_set_id,
+                                                          'problem_set_subspace':problem_set_subspace,
+                                                          **has_standards}).limit(N_LIMIT)
+    else:
+      problem_set_id = task_id
+      responses = db['anon_student_task_responses'].find({'problem_set_id':problem_set_id,
+                                                          **has_standards}).limit(N_LIMIT)
+
+    print(f"processing task {idx}")
+    for r in responses:
+      student_id = r['student']['student_id']
+      student_vectors[student_id].append({
+        'task_id': task_id,                # task_id (problem_set_id.problem_set_subspace)
+        'qual_id': r['qual_id'],           # qualified id
+        'correct':r['correct'],            # answer correct
+        'ts':r['t'],                       # timestamp
+        'ccssm': r['ccssm_standards'][0],  # CCSSM
+        'untouched': r['untouched'],       # skipped the problem
+        'second_try': r['second_try'],     # retry
+        'time_spent': r['time_spent']      # dwell time
+      })
+  except:
+    print(f"Unexpected error: processing task #{idx}")
 
 # build a dictionary from student_id to unique task id count
 uniq_task_count = {}
