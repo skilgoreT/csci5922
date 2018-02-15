@@ -73,6 +73,22 @@ def make_stupid_cost(students):
 
   return stupid_cost
 
+import numpy as np
+from sklearn.metrics import roc_auc_score
+
+def make_stupid_auc(students):
+  def stupid_auc(X):
+    L0 = X
+    p_vector = []
+    t_vector = []
+    for student_id, encoded_responses in students.items():
+      L = L0
+      for encoded_response in encoded_responses:
+        p_vector.append(L0)
+        t_vector.append(encoded_response)
+    return p_vector, t_vector
+  return stupid_auc
+
 stupid_best_fit = {}
 for task_id, students in model_vectors.items():
   cost = make_stupid_cost(students)
@@ -85,12 +101,17 @@ stupid_table_data = []
 for task_id, students in test_vectors.items():
   cost = make_stupid_cost(students)
   test_set_error = cost(stupid_best_fit[task_id])
-  stupid_table_data.append([task_id] + stupid_best_fit[task_id].tolist() + [test_set_error])
+  stupid_auc = make_stupid_auc(students)
+  p_vector, t_vector = stupid_auc(stupid_best_fit[task_id])
+  t_vector = np.array(t_vector)
+  p_vector = np.array(p_vector)
+  auc = roc_auc_score(t_vector, p_vector)
+
+  stupid_table_data.append([task_id] + stupid_best_fit[task_id].tolist() + [test_set_error, auc])
 
 print("\n## Stupid Predictor ##")
 from tabulate import tabulate
-print(tabulate(stupid_table_data, headers = ['task_id', 'L0', 'Test Set Error']))
-
+print(tabulate(stupid_table_data, headers = ['task_id', 'L0', 'Test Set Error', 'AUC']))
 
 ######################################
 # Bayesian Knowledge Tracing Predictor
@@ -127,33 +148,34 @@ def make_bkt_cost(students):
 def make_bkt_auc(students):
   def bkt_auc(X):
     L0, T, S, G = X
-    p_vectors = []
-    t_vectors = []
+    p_vector = []
+    t_vector = []
     for student_id, encoded_responses in students.items():
       L = L0
-      p_vector = []
-      t_vector = []
-      p_vectors.append(p_vector)
-      t_vectors.append(t_vector)
-      for encoded_response in encoded_responses:
+      for idx, encoded_response in enumerate(encoded_responses):
         p = probability_correct(L,T,S,G)
         t = encoded_response
         p_vector.append(p)
         t_vector.append(t)
         L = update_L(encoded_response, L,T,S,G)
-    return p_vectors, t_vectors
+    return p_vector, t_vector
   return bkt_auc
 
 ######################################
 # AUC
 ######################################
+# y_true = np.array([[0],[1],[1]])
+# y_scores = np.array([[0.1], [0.8], [0.9]])
+# print("sklearn auc: {}".format(roc_auc_score(y_true, y_scores)))
 
-filepath = f"{cwd}/bkt_best_fit.json"
-bkt_best_fit = json.load(open(filepath))
-for task_id, students in test_vectors.items():
-  bkt_auc = make_bkt_auc(students)
-  vectors = bkt_auc(bkt_best_fit[task_id])
-  print(vectors)
+# filepath = f"{cwd}/bkt_best_fit.json"
+# bkt_best_fit = json.load(open(filepath))
+# for task_id, students in test_vectors.items():
+#   bkt_auc = make_bkt_auc(students)
+#   p_vectors, t_vectors = bkt_auc(bkt_best_fit[task_id])
+#   t_vectors = np.array(t_vectors)
+#   p_vectors = np.array(p_vectors)
+#   print("task_id: {} sklearn auc: {}".format(task_id, roc_auc_score(t_vectors, p_vectors)))
 
 bkt_best_fit = {}
 for task_id, students in model_vectors.items():
@@ -163,16 +185,45 @@ for task_id, students in model_vectors.items():
   bkt_best_fit[task_id] = res['x'].tolist()
 
 bkt_table_data = []
+hit_rates = []
+aucs = []
 for task_id, students in test_vectors.items():
+  # best fit error
   cost = make_bkt_cost(students)
   test_set_error = cost(bkt_best_fit[task_id])
-  bkt_table_data.append([task_id] + bkt_best_fit[task_id] + [test_set_error])
+  # best fit AUC
+  bkt_auc = make_bkt_auc(students)
+  p_vector, t_vector = bkt_auc(bkt_best_fit[task_id])
+  t_vector = np.array(t_vector)
+  p_vector = np.array(p_vector)
+  hit = 1.0
+  miss = 1.0
+  for i in range(0, len(p_vector)):
+    if(p_vector[i] > 0.5 and t_vector[i] == 1):
+      hit += 1
+    elif(p_vector[i] < 0.5 and t_vector[i] == 1):
+      miss += 1
+    elif(p_vector[i] > 0.5 and t_vector[i] == 0):
+      miss += 1
+    elif(p_vector[i] < 0.5 and t_vector[i] == 0):
+      hit += 1
+  hit_rate = hit/len(p_vector)
+  hit_rates.append(hit_rate)
+  aucs.append(auc)
+  try:
+    auc = roc_auc_score(t_vector, p_vector)
+  except:
+    auc = 0
+  bkt_table_data.append([task_id] + bkt_best_fit[task_id] + [test_set_error, hit_rate, auc])
+
+print(f'Mean hit_rate {np.mean(hit_rates)}')
+print(f'Mean auc {np.mean(aucs)}')
 
 with open('bkt_best_fit.json', 'w') as outfile:
     json.dump(bkt_best_fit, outfile)
 
 from tabulate import tabulate
 print("\n## BKT Predictor ##")
-print(tabulate(bkt_table_data, headers=['task_id','L0','T','S','G', 'Test Set Error']))
+print(tabulate(bkt_table_data, headers=['task_id','L0','T','S','G', 'Test Set Error', '%Correct (t=0.5)', 'AUC']))
 
 print("\nthat is all")
