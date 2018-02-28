@@ -75,6 +75,7 @@ def make_stupid_cost(students):
 
 import numpy as np
 from sklearn.metrics import roc_auc_score
+from sklearn.metrics import roc_curve
 
 def make_stupid_auc(students):
   def stupid_auc(X):
@@ -93,10 +94,10 @@ stupid_best_fit = {}
 for task_id, students in model_vectors.items():
   cost = make_stupid_cost(students)
   x0 = np.array([0.0])
-  res = minimize(cost, x0, method='nelder-mead', options={'xtol': 1e-8, 'disp': False})
+  res = minimize(cost, x0, method='nelder-mead', options={'xtol': 1e-14, 'disp': False})
   stupid_best_fit[task_id] = res['x']
   #print(res)
-
+roc_curves = {}
 stupid_table_data = []
 stupid_tpr = {}
 for task_id, students in test_vectors.items():
@@ -111,6 +112,9 @@ for task_id, students in test_vectors.items():
   t_vector = np.array(t_vector)
   p_vector = np.array(p_vector)
   auc = roc_auc_score(t_vector, p_vector)
+  roc_curves[task_id] = {'x':[], 'y':[]}
+  roc_curves[task_id]['x'], roc_curves[task_id]['y'], _ = roc_curve(t_vector, p_vector)
+
   stupid_table_data.append([task_id, len(t_vector)] + stupid_best_fit[task_id].tolist() + [test_set_error, hit_rate, auc])
   stupid_tpr[task_id] = hit_rate
 
@@ -192,6 +196,7 @@ for task_id, students in model_vectors.items():
 bkt_table_data = []
 hit_rates = []
 aucs = []
+roc_curves = {}
 for task_id, students in test_vectors.items():
   # best fit error
   cost = make_bkt_cost(students)
@@ -216,10 +221,12 @@ for task_id, students in test_vectors.items():
     elif(p_vector[i] < t and t_vector[i] == 0):
       TN+=1
   PPV = TP/(TP+FP)
+  TPR = TP/(TP+FN)
 
   aucs.append(auc)
   try:
     auc = roc_auc_score(t_vector, p_vector)
+    roc_curves[task_id] = roc_curve(t_vector, p_vector)
   except:
     auc = 0
   bkt_table_data.append([task_id, len(t_vector)] + bkt_best_fit[task_id] + [test_set_error, f"t={round(stupid_tpr[task_id],2)} -- {round(PPV,4)}", auc])
@@ -227,6 +234,10 @@ for task_id, students in test_vectors.items():
 
 with open('bkt_best_fit.json', 'w') as outfile:
     json.dump(bkt_best_fit, outfile)
+
+import pickle
+with open('roc.pickle', 'wb') as outfile:
+    pickle.dump(roc_curves, outfile)
 
 from tabulate import tabulate
 print("\n## BKT Predictor ##")
