@@ -13,7 +13,7 @@ DB_NAME = 'wootmathdev'
 DB_PORT = 27017
 
 # primary query limit (use 0 for all records)
-N_LIMIT = 10000
+N_LIMIT = 100000
 # Limit to N_TASKS
 N_TASK = 10
 # Student vectors are dropped if they have responsed to less than this proportion of N_TASK

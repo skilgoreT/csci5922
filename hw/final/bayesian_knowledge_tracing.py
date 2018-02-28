@@ -98,20 +98,25 @@ for task_id, students in model_vectors.items():
   #print(res)
 
 stupid_table_data = []
+stupid_tpr = {}
 for task_id, students in test_vectors.items():
   cost = make_stupid_cost(students)
   test_set_error = cost(stupid_best_fit[task_id])
   stupid_auc = make_stupid_auc(students)
   p_vector, t_vector = stupid_auc(stupid_best_fit[task_id])
+  hit = 0.0
+  for i in range(0, len(t_vector)):
+    if t_vector[i]==1: hit+=1
+  hit_rate = hit/len(t_vector)
   t_vector = np.array(t_vector)
   p_vector = np.array(p_vector)
   auc = roc_auc_score(t_vector, p_vector)
-
-  stupid_table_data.append([task_id] + stupid_best_fit[task_id].tolist() + [test_set_error, auc])
+  stupid_table_data.append([task_id, len(t_vector)] + stupid_best_fit[task_id].tolist() + [test_set_error, hit_rate, auc])
+  stupid_tpr[task_id] = hit_rate
 
 print("\n## Stupid Predictor ##")
 from tabulate import tabulate
-print(tabulate(stupid_table_data, headers = ['task_id', 'L0', 'Test Set Error', 'AUC']))
+print(tabulate(stupid_table_data, headers = ['task_id', 'N_test', 'L0', 'Test Set Error', 'PPV -- TP/(TP+FP)', 'AUC'], tablefmt="psql"))
 
 ######################################
 # Bayesian Knowledge Tracing Predictor
@@ -196,34 +201,35 @@ for task_id, students in test_vectors.items():
   p_vector, t_vector = bkt_auc(bkt_best_fit[task_id])
   t_vector = np.array(t_vector)
   p_vector = np.array(p_vector)
-  hit = 1.0
-  miss = 1.0
+  TP=0.0
+  FN=0.0
+  TN=0.0
+  FP=0.0
   for i in range(0, len(p_vector)):
-    if(p_vector[i] > 0.5 and t_vector[i] == 1):
-      hit += 1
-    elif(p_vector[i] < 0.5 and t_vector[i] == 1):
-      miss += 1
-    elif(p_vector[i] > 0.5 and t_vector[i] == 0):
-      miss += 1
-    elif(p_vector[i] < 0.5 and t_vector[i] == 0):
-      hit += 1
-  hit_rate = hit/len(p_vector)
-  hit_rates.append(hit_rate)
+    t = stupid_tpr[task_id]
+    if(p_vector[i] > t and t_vector[i] == 1):
+      TP+=1
+    elif(p_vector[i] < t and t_vector[i] == 1):
+      FN+=1
+    elif(p_vector[i] > t and t_vector[i] == 0):
+      FP+=1
+    elif(p_vector[i] < t and t_vector[i] == 0):
+      TN+=1
+  PPV = TP/(TP+FP)
+
   aucs.append(auc)
   try:
     auc = roc_auc_score(t_vector, p_vector)
   except:
     auc = 0
-  bkt_table_data.append([task_id] + bkt_best_fit[task_id] + [test_set_error, hit_rate, auc])
+  bkt_table_data.append([task_id, len(t_vector)] + bkt_best_fit[task_id] + [test_set_error, f"t={round(stupid_tpr[task_id],2)} -- {round(PPV,4)}", auc])
 
-print(f'Mean hit_rate {np.mean(hit_rates)}')
-print(f'Mean auc {np.mean(aucs)}')
 
 with open('bkt_best_fit.json', 'w') as outfile:
     json.dump(bkt_best_fit, outfile)
 
 from tabulate import tabulate
 print("\n## BKT Predictor ##")
-print(tabulate(bkt_table_data, headers=['task_id','L0','T','S','G', 'Test Set Error', '%Correct (t=0.5)', 'AUC']))
+print(tabulate(bkt_table_data, headers=['task_id','N_test', 'L0','T','S','G', 'Test Set Error', 'PPV -- TP/(TP+FP)', 'AUC'], tablefmt="psql"))
 
 print("\nthat is all")
