@@ -195,8 +195,10 @@ for task_id, students in model_vectors.items():
 
 bkt_table_data = []
 hit_rates = []
-aucs = []
+
 roc_curves = {}
+concat_t_vector = []
+concat_p_vector = []
 for task_id, students in test_vectors.items():
   # best fit error
   cost = make_bkt_cost(students)
@@ -204,6 +206,8 @@ for task_id, students in test_vectors.items():
   # best fit AUC
   bkt_auc = make_bkt_auc(students)
   p_vector, t_vector = bkt_auc(bkt_best_fit[task_id])
+  concat_t_vector = concat_t_vector + t_vector
+  concat_p_vector = concat_p_vector + p_vector
   t_vector = np.array(t_vector)
   p_vector = np.array(p_vector)
   TP=0.0
@@ -211,6 +215,7 @@ for task_id, students in test_vectors.items():
   TN=0.0
   FP=0.0
   for i in range(0, len(p_vector)):
+    # threshold - use the stupid_tpr i.e. average probability correct
     t = stupid_tpr[task_id]
     if(p_vector[i] > t and t_vector[i] == 1):
       TP+=1
@@ -223,7 +228,6 @@ for task_id, students in test_vectors.items():
   PPV = TP/(TP+FP)
   TPR = TP/(TP+FN)
 
-  aucs.append(auc)
   try:
     auc = roc_auc_score(t_vector, p_vector)
     roc_curves[task_id] = roc_curve(t_vector, p_vector)
@@ -231,6 +235,8 @@ for task_id, students in test_vectors.items():
     auc = 0
   bkt_table_data.append([task_id, len(t_vector)] + bkt_best_fit[task_id] + [test_set_error, f"t={round(stupid_tpr[task_id],2)} -- {round(PPV,4)}", auc])
 
+concat_auc = roc_auc_score(concat_t_vector, concat_p_vector)
+concat_roc_curve = {"BKT":roc_curve(concat_t_vector, concat_p_vector)}
 
 with open('bkt_best_fit.json', 'w') as outfile:
     json.dump(bkt_best_fit, outfile)
@@ -239,8 +245,12 @@ import pickle
 with open('roc.pickle', 'wb') as outfile:
     pickle.dump(roc_curves, outfile)
 
+with open('concat_roc.pickle', 'wb') as outfile:
+    pickle.dump(concat_roc_curve, outfile)
+
 from tabulate import tabulate
 print("\n## BKT Predictor ##")
 print(tabulate(bkt_table_data, headers=['task_id','N_test', 'L0','T','S','G', 'Test Set Error', 'PPV -- TP/(TP+FP)', 'AUC'], tablefmt="psql"))
+print(f"Concat AUC (concatenation of all task vectors) = {concat_auc}, N_test = {len(concat_t_vector)}")
 
 print("\nthat is all")
