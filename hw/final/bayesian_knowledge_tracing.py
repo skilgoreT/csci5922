@@ -26,7 +26,7 @@ def encode_response(response):
   else:
     return None;
 
-filepath = f"{cwd}/student_vectors_n_task_10_n_limit_10000.json"
+filepath = f"{cwd}/student_vectors_n_task_10_n_limit_100000.json"
 student_vectors = json.load(open(filepath))
 n_student = len(student_vectors)
 print(f"read JSON from {filepath}, N: {len(student_vectors)}")
